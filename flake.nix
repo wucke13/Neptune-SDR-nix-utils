@@ -28,6 +28,7 @@
       {
         packages = {
           inherit (pkgs) iio-oscilloscope soapyplutosdr;
+          inherit (pkgsCross) pluto-image pluto-linux pluto-u-boot;
         };
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = [
