@@ -21,9 +21,9 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   nativeBuildInputs = [
-    ubootTools
     dfu-util
     dtc
+    ubootTools
   ];
 
   postPatch = ''
@@ -42,7 +42,7 @@ stdenv.mkDerivation (finalAttrs: {
     mkdir --parent build
 
     cp ${pluto-linux}/zImage build/
-    cp -- ${pluto-u-boot}/u-boot u-boot.elf
+    cp -- ${pluto-u-boot}/u-boot build/u-boot.elf
     cp -- ${pluto-u-boot}/env_common.o build/
 
     chmod --recursive +w build
