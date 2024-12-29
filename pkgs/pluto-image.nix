@@ -48,6 +48,20 @@ stdenv.mkDerivation (finalAttrs: {
     CROSS_COMPILE=${stdenv.cc.targetPrefix} scripts/get_default_envs.sh > build/uboot-env.txt
     mkenvimage -s 0x20000 -o build/uboot-env.bin build/uboot-env.txt
 
+    # build dtb
+
+    # build/copy initramfs
+
+    # build pluto.itb
+
+    # build/copy build/system_top.bit
+
+    # build fsbl.elf
+
+    # build boot.bin
+
+    # build the frm
+
     runHook postBuild
   '';
 
