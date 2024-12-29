@@ -2,6 +2,7 @@
   stdenv,
   fetchFromGitHub,
   dfu-util,
+  dtc,
   ubootTools,
   pluto-linux,
   pluto-u-boot,
@@ -22,6 +23,7 @@ stdenv.mkDerivation (finalAttrs: {
   nativeBuildInputs = [
     ubootTools
     dfu-util
+    dtc
   ];
 
   postPatch = ''
@@ -49,6 +51,12 @@ stdenv.mkDerivation (finalAttrs: {
     mkenvimage -s 0x20000 -o build/uboot-env.bin build/uboot-env.txt
 
     # build dtb
+    for dtb in ${pluto-linux}/dtbs/*pluto*.dtb
+    do
+      output_dtb="build/''${dtb##*/}"
+      dtc -q -@ -I dtb -O dts "$dtb" | sed 's/axi {/amba {/g' | dtc -q -@ -I dts -O dtb -o "$output_dtb"
+      dtc -q -@ -I dtb -O dts "$output_dtb" --out "''${output_dtb%.dtb}.dts"
+    done
 
     # build/copy initramfs
 

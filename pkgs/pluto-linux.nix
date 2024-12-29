@@ -27,4 +27,11 @@ linuxPackages_6_1.kernel.override {
     version = "6.1.0";
     modDirVersion = "6.1.0";
   };
+  kernelPatches = [
+    {
+      # Make the zynq arch also build the pluto dtb
+      name = "add-pluto-dtb";
+      patch = ../patches/linux-kernel-add-pluto-dtb.patch;
+    }
+  ];
 }
