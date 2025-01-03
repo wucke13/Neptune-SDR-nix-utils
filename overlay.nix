@@ -4,7 +4,9 @@ final: prev: {
   urh = prev.callPackage ./pkgs/urh.nix { };
 
   pluto-image = prev.callPackage ./pkgs/pluto-image.nix {
-    pluto-xsa = final.pluto-xsa-bin; # save some time
+    # save some time
+    pluto-rootfs = final.pluto-rootfs-bin;
+    pluto-xsa = final.pluto-xsa-bin;
   };
   pluto-linux = prev.callPackage ./pkgs/pluto-linux.nix { };
   pluto-rootfs-bin = prev.callPackage ./pkgs/pluto-rootfs-bin.nix { };

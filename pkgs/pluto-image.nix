@@ -1,11 +1,22 @@
 {
+  lib,
   stdenv,
   fetchFromGitHub,
+
   dfu-util,
   dtc,
   ubootTools,
+  unzip,
+  xilinx-bootgen,
+
   pluto-linux,
+  pluto-rootfs,
   pluto-u-boot,
+  pluto-xsa,
+
+  deviceVid ? "0x0456",
+  devicePid ? "0xb673",
+  target ? "pluto",
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -24,18 +35,15 @@ stdenv.mkDerivation (finalAttrs: {
     dfu-util
     dtc
     ubootTools
+    unzip
+    xilinx-bootgen
   ];
 
   postPatch = ''
     patchShebangs scripts
   '';
 
-  # TODO what about dts/dtb?
-  # TODO what about initramfs?
   # TODO what about fsbl?
-  # TODO what about MSD firmware files?
-  # TODO what about DFU update firmware files?
-  # TODO what about bitstream and XSA files?
   buildPhase = ''
     runHook preBuild
 
@@ -59,16 +67,38 @@ stdenv.mkDerivation (finalAttrs: {
     done
 
     # build/copy initramfs
-
-    # build pluto.itb
+    cp -- ${pluto-rootfs}/*cpio.gz build/rootfs.cpio.gz
 
     # build/copy build/system_top.bit
+    unzip ${pluto-xsa}/system_top.xsa \
+      system_top.bit ps7_init.tcl \
+      -d build
+
+    # build pluto.itb
+    mkimage -f scripts/${target}.its build/${target}.itb
 
     # build fsbl.elf
+    cp build/u-boot.elf build/fsbl.elf # TODO remove this hack
 
     # build boot.bin
+    echo "img:{[bootloader] build/fsbl.elf build/u-boot.elf }" > build/boot.bif
+    bootgen -image build/boot.bif -w -o build/boot.bin
 
     # build the frm
+    ## build pluto.frm
+    md5sum build/${target}.itb | cut -d ' ' -f 1 > build/${target}.frm.md5
+    cat build/${target}.itb build/${target}.frm.md5 > build/${target}.frm
+    ## build boot.frm
+    cat build/boot.bin build/uboot-env.bin scripts/target_mtd_info.key \
+      | tee build/boot.frm | md5sum | cut -d ' ' -f1 | tee -a build/boot.frm
+
+    # build the dfu
+    for update in build/boot.bin build/${target}.itb
+    do
+      cp -- "$update" "$update.tmp"
+      dfu-suffix -a "$update.tmp" -v ${deviceVid} -p ${devicePid}
+      mv "$update.tmp" "''${update%.*}.dfu"
+    done
 
     runHook postBuild
   '';
