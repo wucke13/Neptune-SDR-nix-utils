@@ -7,6 +7,7 @@ final: prev: {
     pluto-xsa = final.pluto-xsa-bin; # save some time
   };
   pluto-linux = prev.callPackage ./pkgs/pluto-linux.nix { };
+  pluto-rootfs-bin = prev.callPackage ./pkgs/pluto-rootfs-bin.nix { };
   pluto-u-boot = prev.callPackage ./pkgs/pluto-u-boot.nix { };
   pluto-xsa-bin = prev.callPackage ./pkgs/pluto-xsa-bin.nix { };
 

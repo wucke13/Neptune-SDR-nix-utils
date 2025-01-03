@@ -31,6 +31,7 @@
           inherit (pkgsCross)
             pluto-image
             pluto-linux
+            pluto-rootfs-bin
             pluto-u-boot
             pluto-xsa-bin
             ;
