@@ -16,6 +16,7 @@ let
     }
     // {
       # globally override pluto-xsa with bin version so we don't depend on xilinx tooling for pluto
+      neptunesdr-xsa = final.neptunesdr-xsa-bin;
       pluto-xsa = final.pluto-xsa-bin;
       pluto-rootfs = final.pluto-rootfs-bin; # TODO make the non-bin version work at all
 
