@@ -26,16 +26,7 @@
         };
       in
       {
-        packages = {
-          inherit (pkgs) iio-oscilloscope soapyplutosdr;
-          inherit (pkgsCross)
-            pluto-image
-            pluto-linux
-            pluto-rootfs-bin
-            pluto-u-boot
-            pluto-xsa-bin
-            ;
-        };
+        packages = pkgs.sdr-nix-utils;
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = [
             (pkgs.soapysdr.override { extraPackages = [ self.packages.${system}.soapyplutosdr ]; })

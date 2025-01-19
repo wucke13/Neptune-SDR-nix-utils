@@ -5,10 +5,12 @@
 
   dfu-util,
   dtc,
+  gcc-arm-embedded,
   ubootTools,
   unzip,
   xilinx-bootgen,
 
+  pluto-fsbl,
   pluto-linux,
   pluto-rootfs,
   pluto-u-boot,
@@ -34,6 +36,7 @@ stdenv.mkDerivation (finalAttrs: {
   nativeBuildInputs = [
     dfu-util
     dtc
+    gcc-arm-embedded
     ubootTools
     unzip
     xilinx-bootgen
@@ -55,7 +58,7 @@ stdenv.mkDerivation (finalAttrs: {
 
     chmod --recursive +w build
 
-    CROSS_COMPILE=${stdenv.cc.targetPrefix} scripts/get_default_envs.sh > build/uboot-env.txt
+    CROSS_COMPILE=arm-none-eabi- scripts/get_default_envs.sh > build/uboot-env.txt
     mkenvimage -s 0x20000 -o build/uboot-env.bin build/uboot-env.txt
 
     # build dtb
@@ -70,15 +73,16 @@ stdenv.mkDerivation (finalAttrs: {
     cp -- ${pluto-rootfs}/*cpio.gz build/rootfs.cpio.gz
 
     # build/copy build/system_top.bit
-    unzip ${pluto-xsa}/system_top.xsa \
-      system_top.bit ps7_init.tcl \
-      -d build
+    mkdir --parent -- build/xsa
+    unzip ${pluto-xsa}/*.xsa -d build/xsa
+    cp build/xsa/*.bit build/system_top.bit
+    cp build/xsa/ps7_init.tcl build/
 
     # build pluto.itb
     mkimage -f scripts/${target}.its build/${target}.itb
 
     # build fsbl.elf
-    cp build/u-boot.elf build/fsbl.elf # TODO remove this hack
+    cp ${pluto-fsbl}/fsbl.elf build/
 
     # build boot.bin
     echo "img:{[bootloader] build/fsbl.elf build/u-boot.elf }" > build/boot.bif

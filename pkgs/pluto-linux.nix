@@ -1,6 +1,5 @@
 {
   fetchFromGitHub,
-  linuxManualConfig,
   linuxPackages_6_1,
 }:
 
