@@ -1,0 +1,68 @@
+diff --git a/arch/arm/dts/zynq-pluto-sdr.dts b/arch/arm/dts/zynq-pluto-sdr.dts
+index c618d98b54..18c930fd4a 100644
+--- a/arch/arm/dts/zynq-pluto-sdr.dts
++++ b/arch/arm/dts/zynq-pluto-sdr.dts
+@@ -75,3 +75,11 @@
+ 	dr_mode = "host";
+ 	usb-phy = <&usb_phy0>;
+ };
++
++&sdhci0 {
++	status = "okay";
++};
++
++&gem0 {
++	status = "okay";
++};
+diff --git a/configs/zynq_pluto_defconfig b/configs/zynq_pluto_defconfig
+index 0daf46221e..67c0dcdc5b 100644
+--- a/configs/zynq_pluto_defconfig
++++ b/configs/zynq_pluto_defconfig
+@@ -10,18 +10,25 @@ CONFIG_FIT_SIGNATURE=y
+ CONFIG_BOOTDELAY=0
+ CONFIG_SYS_NO_FLASH=y
+ CONFIG_HUSH_PARSER=y
+-CONFIG_SYS_PROMPT="Pluto> "
++CONFIG_SYS_PROMPT="NeptuneSDR> "
+ # CONFIG_CMD_IMLS is not set
+ # CONFIG_CMD_XIMG is not set
+ # CONFIG_CMD_FLASH is not set
++CONFIG_CMD_MMC=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
+ CONFIG_CMD_DFU=y
+ CONFIG_CMD_GPIO=y
+ # CONFIG_CMD_SETEXPR is not set
+-# CONFIG_CMD_NET is not set
++CONFIG_CMD_NET=y
++CONFIG_CMD_TFTPPUT=y
++CONFIG_CMD_DHCP=y
+ # CONFIG_CMD_NFS is not set
++CONFIG_CMD_MII=y
++CONFIG_CMD_PING=y
++CONFIG_CMD_DNS=y
++CONFIG_CMD_LINK_LOCAL=y
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_EXT2=y
+ CONFIG_CMD_EXT4=y
+@@ -29,9 +36,11 @@ CONFIG_CMD_EXT4_WRITE=y
+ CONFIG_CMD_FAT=y
+ CONFIG_CMD_FS_GENERIC=y
+ CONFIG_OF_EMBED=y
++CONFIG_NET_RANDOM_ETHADDR=y
+ CONFIG_SPL_DM_SEQ_ALIAS=y
+ CONFIG_LED=y
+ CONFIG_LED_GPIO=y
++CONFIG_ZYNQ_SDHCI=y
+ CONFIG_SPI_FLASH=y
+ CONFIG_SPI_FLASH_BAR=y
+ CONFIG_SPI_FLASH_ISSI=y
+@@ -39,6 +48,7 @@ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_SPI_FLASH_WINBOND=y
++CONFIG_ZYNQ_GEM=y
+ CONFIG_ZYNQ_QSPI=y
+ CONFIG_USB=y
+ CONFIG_USB_EHCI_HCD=y
