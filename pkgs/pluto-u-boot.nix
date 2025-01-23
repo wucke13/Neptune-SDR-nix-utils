@@ -3,6 +3,7 @@
   buildUBoot,
   fetchFromGitHub,
   bc,
+  openssl,
 }:
 
 # Upstream builds U-Boot like this:
@@ -28,16 +29,12 @@ buildUBoot {
 
   defconfig = "zynq_pluto_defconfig";
 
-  # TODO the fit image signature stuff does not find openssl headers, so disable signatures
-  extraConfig = ''
-    CONFIG_FIT_SIGNATURE=n
-  '';
-
   patches = [ ]; # avoid nixos-special raspberry-pi patches from being applied
 
   nativeBuildInputs = [
     stdenv.cc.cc # so string.h is found by the host-cc
     bc
+    openssl # FIT-image signatures require this on the build system!
   ];
 
   extraMeta.platforms = [ "armv7l-linux" ];
