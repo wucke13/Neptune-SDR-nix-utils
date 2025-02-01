@@ -1,0 +1,115 @@
+diff --git a/projects/pluto/system_bd.tcl b/projects/pluto/system_bd.tcl
+index 0133b3f04..2473608f6 100644
+--- a/projects/pluto/system_bd.tcl
++++ b/projects/pluto/system_bd.tcl
+@@ -43,9 +43,9 @@ ad_ip_instance processing_system7 sys_ps7
+ 
+ # ps7 settings
+ 
+-ad_ip_parameter sys_ps7 CONFIG.PCW_PRESET_BANK0_VOLTAGE {LVCMOS 1.8V}
+-ad_ip_parameter sys_ps7 CONFIG.PCW_PRESET_BANK1_VOLTAGE {LVCMOS 1.8V}
+-ad_ip_parameter sys_ps7 CONFIG.PCW_PACKAGE_NAME clg225
++ad_ip_parameter sys_ps7 CONFIG.PCW_PRESET_BANK0_VOLTAGE {LVCMOS 2.5V}
++ad_ip_parameter sys_ps7 CONFIG.PCW_PRESET_BANK1_VOLTAGE {LVCMOS 2.5V}
++ad_ip_parameter sys_ps7 CONFIG.PCW_PACKAGE_NAME clg400
+ ad_ip_parameter sys_ps7 CONFIG.PCW_USE_S_AXI_HP1 1
+ ad_ip_parameter sys_ps7 CONFIG.PCW_USE_S_AXI_HP2 1
+ ad_ip_parameter sys_ps7 CONFIG.PCW_EN_CLK1_PORT 1
+@@ -167,16 +167,6 @@ ad_connect  sys_concat_intc/In2 GND
+ ad_connect  sys_concat_intc/In1 GND
+ ad_connect  sys_concat_intc/In0 GND
+ 
+-# iic
+-
+-create_bd_intf_port -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 iic_main
+-
+-ad_ip_instance axi_iic axi_iic_main
+-
+-ad_connect  iic_main axi_iic_main/iic
+-ad_cpu_interconnect 0x41600000 axi_iic_main
+-ad_cpu_interrupt ps-15 mb-15 axi_iic_main/iic2intc_irpt
+-
+ # ad9361
+ 
+ create_bd_port -dir I rx_clk_in
+diff --git a/projects/pluto/system_project.tcl b/projects/pluto/system_project.tcl
+index 3c5d49aa2..246ed3db5 100644
+--- a/projects/pluto/system_project.tcl
++++ b/projects/pluto/system_project.tcl
+@@ -7,7 +7,7 @@ source ../../scripts/adi_env.tcl
+ source $ad_hdl_dir/projects/scripts/adi_project_xilinx.tcl
+ source $ad_hdl_dir/projects/scripts/adi_board.tcl
+ 
+-adi_project_create pluto 0 {} "xc7z010clg225-1"
++adi_project_create pluto 0 {} "xc7z020clg400-1"
+ 
+ adi_project_files pluto [list \
+   "system_top.v" \
+diff --git a/projects/pluto/system_top.v b/projects/pluto/system_top.v
+index acb97bb70..28f9c6e77 100644
+--- a/projects/pluto/system_top.v
++++ b/projects/pluto/system_top.v
+@@ -79,13 +79,7 @@ module system_top (
+   output          spi_csn,
+   output          spi_clk,
+   output          spi_mosi,
+-  input           spi_miso,
+-
+-  output          pl_gpio0,
+-  input           pl_gpio1,
+-  inout           pl_gpio2,
+-  inout           pl_gpio3,
+-  inout           pl_gpio4
++  input           spi_miso
+ );
+ 
+   // internal signals
+@@ -94,9 +88,6 @@ module system_top (
+   wire    [17:0]  gpio_o;
+   wire    [17:0]  gpio_t;
+ 
+-  wire            iic_scl;
+-  wire            iic_sda;
+-  wire            phaser_enable;
+   wire            pl_burst;
+   wire            pl_muxout;
+   wire            pl_spi_clk_o;
+@@ -119,26 +110,6 @@ module system_top (
+ 
+   assign gpio_i[16:14] = gpio_o[16:14];
+   assign gpio_i[17] = pl_muxout;
+-  assign phaser_enable = gpio_o[14];
+-
+-  assign pl_gpio4 = iic_scl;      //PL_GPIO4
+-  assign pl_gpio3 = iic_sda;      //PL_GPIO3
+-
+-  //PL_GPIO2
+-  ad_iobuf #(
+-    .DATA_WIDTH(1)
+-  ) i_pl_gpio_iobuf (
+-    .dio_t (phaser_enable),
+-    .dio_i (pl_spi_clk_o),
+-    .dio_o (pl_muxout),
+-    .dio_p (pl_gpio2));
+-
+-  //PL_GPIO1
+-  assign pl_spi_miso = pl_gpio1 & ~phaser_enable;
+-  assign pl_burst    = pl_gpio1 &  phaser_enable;
+-
+-  //PL_GPIO0
+-  assign pl_gpio0 = phaser_enable ? pl_txdata : pl_spi_mosi;
+ 
+   system_wrapper i_system_wrapper (
+     .ddr_addr (ddr_addr),
+@@ -163,11 +134,6 @@ module system_top (
+     .fixed_io_ps_clk (fixed_io_ps_clk),
+     .fixed_io_ps_porb (fixed_io_ps_porb),
+     .fixed_io_ps_srstb (fixed_io_ps_srstb),
+-    .gpio_i (gpio_i),
+-    .gpio_o (gpio_o),
+-    .gpio_t (gpio_t),
+-    .iic_main_scl_io (iic_scl),
+-    .iic_main_sda_io (iic_sda),
+     .rx_clk_in (rx_clk_in),
+     .rx_data_in (rx_data_in),
+     .rx_frame_in (rx_frame_in),
