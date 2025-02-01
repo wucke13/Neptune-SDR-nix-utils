@@ -1,19 +1,26 @@
 {
   inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.xilinx-nix-utils.url = "github:DLR-FT/xilinx-nix-utils";
 
   outputs =
     {
       self,
       nixpkgs,
       flake-utils,
-    }:
+      ...
+    }@inputs:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (
       system:
       let
         # packages for the current host system
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ self.overlays.default ];
+          overlays = [
+            self.overlays.default
+            (final: prev: {
+              inherit (inputs.xilinx-nix-utils.packages.${system}) xilinx-unified-2023-2;
+            })
+          ];
         };
 
         # packages for the SDR processor
