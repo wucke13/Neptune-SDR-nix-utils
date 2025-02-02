@@ -23,11 +23,13 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   buildPhase = ''
-    runHook preBuild
+    runHook preInstall
+    pushd "projects/${target}"
 
-    make -C "projects/${target}"
+    make ''${enableParallelBuilding:+-j''${NIX_BUILD_CORES}}
 
-    runHook postBuild
+    popd
+    runHook postInstall
   '';
 
   installPhase = ''
